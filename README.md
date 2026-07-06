@@ -2,15 +2,15 @@
 
 Приложение для учёта выплат с Telegram Mini App.
 
-## Запуск на сервере (Ubuntu)
+## Архитектура
 
-```bash
-git clone git@github.com:ellieene/cleaning-bot.git
-cd cleaning-bot
-bash install.sh
-```
+| Часть | Адрес |
+|-------|-------|
+| **Фронтенд** | https://ellieene.github.io/cleaning-bot/ |
+| **Backend API** | https://161-104-17-204.nip.io/api/ |
+| **Сервер** | 161.104.17.204 |
 
-Уже склонировано — просто обновите и переустановите:
+## Запуск backend на сервере
 
 ```bash
 cd ~/cleaning-bot
@@ -22,53 +22,35 @@ bash install.sh
 
 ```bash
 nano backend/.env
-```
-
-```
-TELEGRAM_BOT_TOKEN=ваш_токен
-HOST=0.0.0.0
-PORT=5000
-```
-
-```bash
 systemctl restart money-backend
 ```
 
-### Проверка
+## Проверка
 
 ```bash
-curl http://localhost/api/health
+curl https://161-104-17-204.nip.io/api/health
 ```
-
-Сайт откроется по IP сервера на порту 80.
 
 ## Структура
 
 ```
 cleaning-bot/
-├── index.html         ← главная страница
-├── install.sh         ← установка всего одной командой
+├── index.html         ← GitHub Pages
 ├── frontend/          ← css, js, assets
 ├── backend/           ← API + SQLite
-└── deploy/            ← конфиги nginx и systemd
+├── install.sh         ← установка на сервер
+└── deploy/            ← nginx + systemd
 ```
-
-## Использование
-
-**Главное меню:** организация → сумма → дата → «Записать»
-
-**Скрытое меню:** 1 нажатие на логотип
 
 ## Полезные команды
 
 ```bash
-systemctl status money-backend   # статус API
-systemctl restart money-backend  # перезапуск API
-systemctl restart nginx          # перезапуск сайта
-journalctl -u money-backend -f   # логи API
+systemctl status money-backend
+systemctl restart money-backend
+journalctl -u money-backend -f
 ```
 
 ## Telegram Mini App
 
-1. [@BotFather](https://t.me/BotFather) → `/newapp`
-2. URL: `http://ВАШ_IP/` (для продакшена нужен HTTPS и домен)
+В [@BotFather](https://t.me/BotFather) укажите URL:
+`https://ellieene.github.io/cleaning-bot/`

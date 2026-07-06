@@ -13,7 +13,13 @@ from config import (
 from export import create_payments_xlsx
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=[
+    "https://ellieene.github.io",
+    "http://161.104.17.204",
+    "https://161-104-17-204.nip.io",
+    "http://localhost:8080",
+    "http://127.0.0.1:8080",
+])
 
 init_db()
 

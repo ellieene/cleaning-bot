@@ -41,6 +41,9 @@ fi
 
 mkdir -p data
 
+API_DOMAIN="161-104-17-204.nip.io"
+SERVER_IP="161.104.17.204"
+
 # Nginx
 echo ">>> Настройка nginx..."
 sed "s|PROJECT_DIR|$PROJECT_DIR|g" "$PROJECT_DIR/deploy/nginx.conf" \
@@ -52,6 +55,16 @@ rm -f /etc/nginx/sites-enabled/default
 nginx -t
 systemctl enable nginx
 systemctl restart nginx
+
+# HTTPS для API (нужно для GitHub Pages)
+echo ">>> Настройка HTTPS ($API_DOMAIN)..."
+apt-get install -y -qq certbot python3-certbot-nginx > /dev/null 2>&1 || true
+if certbot --nginx -d "$API_DOMAIN" --non-interactive --agree-tos --register-unsafely-without-email --redirect 2>/dev/null; then
+    echo "    SSL сертификат установлен"
+else
+    echo "    ⚠️  Certbot не смог выдать сертификат — запустите вручную:"
+    echo "    certbot --nginx -d $API_DOMAIN"
+fi
 
 # Systemd сервис backend
 echo ">>> Настройка автозапуска backend..."
@@ -73,15 +86,16 @@ sleep 2
 echo ""
 echo "=========================================="
 if curl -sf http://127.0.0.1/api/health > /dev/null; then
-    echo "  ✅ Всё работает!"
+    echo "  ✅ Backend работает!"
 else
     echo "  ⚠️  Backend не отвечает — проверьте:"
     echo "     systemctl status money-backend"
 fi
 echo "=========================================="
 echo ""
-echo "Сайт:    http://$(curl -sf ifconfig.me 2>/dev/null || hostname -I | awk '{print $1}')"
-echo "API:     http://$(curl -sf ifconfig.me 2>/dev/null || hostname -I | awk '{print $1}')/api/health"
+echo "Фронтенд:  https://ellieene.github.io/cleaning-bot/"
+echo "API:       https://$API_DOMAIN/api/health"
+echo "IP:        http://$SERVER_IP/api/health"
 echo ""
 echo "Не забудьте указать токен бота:"
 echo "  nano $BACKEND_DIR/.env"
