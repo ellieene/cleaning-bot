@@ -1,7 +1,10 @@
 /**
- * Настройки приложения — меняйте здесь при необходимости
+ * Настройки приложения
+ * На сервере API идёт через nginx (/api → backend)
+ * Локально — напрямую на порт 5050
  */
 const CONFIG = {
-  // URL сервера с базой данных (без слэша в конце)
-  API_URL: 'http://localhost:5050',
+  API_URL: location.hostname === 'localhost' || location.hostname === '127.0.0.1'
+    ? 'http://localhost:5050'
+    : '',
 };

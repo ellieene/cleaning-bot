@@ -2,41 +2,27 @@
 
 Приложение для учёта выплат с Telegram Mini App.
 
-## Структура
-
-```
-Money/
-├── frontend/          # Одностраничный сайт
-│   ├── index.html
-│   ├── css/style.css
-│   ├── js/
-│   │   ├── config.js   ← настройки (URL сервера)
-│   │   ├── api.js      ← запросы к API
-│   │   ├── telegram.js ← Telegram WebApp
-│   │   ├── main.js     ← главное меню
-│   │   └── hidden.js   ← скрытое меню
-│   └── assets/logo.svg
-│
-└── backend/           # Сервер и база данных
-    ├── start.sh       ← запуск одной командой (Ubuntu)
-    ├── server.py
-    ├── organizations.json  ← список организаций
-    └── data/          ← SQLite база (создаётся автоматически)
-```
-
-## Быстрый старт (Ubuntu)
-
-### 1. Сервер (база данных)
+## Запуск на сервере (Ubuntu)
 
 ```bash
-cd backend
-chmod +x start.sh
-bash start.sh
+git clone git@github.com:ellieene/cleaning-bot.git
+cd cleaning-bot
+bash install.sh
 ```
 
-> **Важно:** запускайте через `bash start.sh` или `./start.sh`, а не `sh start.sh` — на Ubuntu `sh` это dash, и скрипт не сработает.
+Уже склонировано — просто обновите и переустановите:
 
-При первом запуске создаётся `.env` — укажите в нём токен Telegram-бота:
+```bash
+cd ~/cleaning-bot
+git pull
+bash install.sh
+```
+
+### Токен Telegram-бота
+
+```bash
+nano backend/.env
+```
 
 ```
 TELEGRAM_BOT_TOKEN=ваш_токен
@@ -44,43 +30,44 @@ HOST=0.0.0.0
 PORT=5000
 ```
 
-Откройте порт в файрволе:
+```bash
+systemctl restart money-backend
+```
+
+### Проверка
 
 ```bash
-ufw allow 5000
+curl http://localhost/api/health
 ```
 
-### 2. Фронтенд
+Сайт откроется по IP сервера на порту 80.
 
-Разместите папку `frontend` на веб-сервере (nginx, Apache).
+## Структура
 
-В `frontend/js/config.js` укажите URL вашего сервера:
-
-```js
-API_URL: 'http://161.104.17.204:5000',
 ```
-
-### 3. Telegram Mini App
-
-1. Создайте бота через [@BotFather](https://t.me/BotFather)
-2. В BotFather: `/newapp` → привяжите URL вашего `index.html`
-3. Токен бота храните только в `backend/.env` (не в коде сайта!)
+cleaning-bot/
+├── install.sh         ← установка всего одной командой
+├── frontend/          ← сайт (раздаёт nginx)
+├── backend/           ← API + SQLite
+└── deploy/            ← конфиги nginx и systemd
+```
 
 ## Использование
 
-**Главное меню:** выбор организации, сумма, дата → «Записать»
+**Главное меню:** организация → сумма → дата → «Записать»
 
-**Скрытое меню:** 1 нажатие на логотип → скачивание, добавление и удаление
+**Скрытое меню:** 1 нажатие на логотип
 
-## Редактирование организаций
+## Полезные команды
 
-Откройте `backend/organizations.json` и измените список:
-
-```json
-[
-  "ООО Альфа",
-  "ИП Бета"
-]
+```bash
+systemctl status money-backend   # статус API
+systemctl restart money-backend  # перезапуск API
+systemctl restart nginx          # перезапуск сайта
+journalctl -u money-backend -f   # логи API
 ```
 
-Перезапуск сервера не требуется.
+## Telegram Mini App
+
+1. [@BotFather](https://t.me/BotFather) → `/newapp`
+2. URL: `http://ВАШ_IP/` (для продакшена нужен HTTPS и домен)
