@@ -75,6 +75,9 @@ systemctl daemon-reload
 systemctl enable money-backend
 systemctl restart money-backend
 
+# Ждём запуск gunicorn
+sleep 4
+
 # Файрвол
 if command -v ufw &> /dev/null; then
     ufw allow 80/tcp  > /dev/null 2>&1 || true
@@ -82,14 +85,35 @@ if command -v ufw &> /dev/null; then
 fi
 
 # Проверка
-sleep 2
 echo ""
 echo "=========================================="
-if curl -sf http://127.0.0.1/api/health > /dev/null; then
-    echo "  ✅ Backend работает!"
+BACKEND_OK=0
+
+if curl -sf http://127.0.0.1:5000/api/health > /dev/null 2>&1; then
+    echo "  ✅ Gunicorn работает (порт 5000)"
+    BACKEND_OK=1
 else
-    echo "  ⚠️  Backend не отвечает — проверьте:"
-    echo "     systemctl status money-backend"
+    echo "  ❌ Gunicorn не отвечает на порту 5000"
+    echo ""
+    echo "  Логи backend:"
+    journalctl -u money-backend -n 15 --no-pager 2>/dev/null || true
+fi
+
+if curl -sf "https://$API_DOMAIN/api/health" > /dev/null 2>&1; then
+    echo "  ✅ API через nginx/HTTPS работает"
+    BACKEND_OK=1
+elif curl -sf http://127.0.0.1/api/health > /dev/null 2>&1; then
+    echo "  ✅ API через nginx (HTTP) работает"
+    BACKEND_OK=1
+else
+    echo "  ⚠️  API через nginx не отвечает"
+fi
+
+if [ "$BACKEND_OK" -eq 0 ]; then
+    echo ""
+    echo "  Попробуйте вручную:"
+    echo "    systemctl status money-backend"
+    echo "    journalctl -u money-backend -f"
 fi
 echo "=========================================="
 echo ""
