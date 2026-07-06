@@ -46,8 +46,9 @@ curl http://localhost/api/health
 
 ```
 cleaning-bot/
+├── index.html         ← главная страница
 ├── install.sh         ← установка всего одной командой
-├── frontend/          ← сайт (раздаёт nginx)
+├── frontend/          ← css, js, assets
 ├── backend/           ← API + SQLite
 └── deploy/            ← конфиги nginx и systemd
 ```
