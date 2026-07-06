@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Деньги Артема</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <img src="assets/logo.svg" alt="Логотип" class="logo" id="logo">
+      <h1 class="title">Деньги Артема</h1>
+    </header>
+
+    <main class="main-menu" id="mainMenu">
+      <form id="paymentForm" class="form">
+        <div class="field">
+          <label for="organization">Организация</label>
+          <select id="organization" name="organization" required>
+            <option value="" disabled selected>Выберите организацию</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="amount">Сумма</label>
+          <input type="number" id="amount" name="amount" min="0" step="0.01" placeholder="0.00" required>
+        </div>
+
+        <div class="field">
+          <label for="date">Дата</label>
+          <input type="date" id="date" name="date" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="submitBtn">Записать</button>
+      </form>
+
+      <div class="toast" id="toast" hidden></div>
+    </main>
+
+    <section class="hidden-menu" id="hiddenMenu" hidden>
+      <h2 class="hidden-title">Скрытое меню</h2>
+
+      <div class="export-block">
+        <div class="action-buttons">
+          <button type="button" class="btn btn-secondary" id="openDownloadBtn">Скачать таблицу выплат</button>
+          <button type="button" class="btn btn-ghost" id="openAddOrgBtn">Добавить организацию</button>
+          <button type="button" class="btn btn-danger" id="openDeleteOrgBtn">Удалить организацию</button>
+          <button type="button" class="btn btn-danger" id="openDeletePaymentBtn">Удалить запись</button>
+        </div>
+      </div>
+
+      <button type="button" class="btn btn-ghost" id="closeHiddenBtn">← Назад</button>
+    </section>
+
+    <section class="hidden-menu" id="exportMenu" hidden>
+      <h2 class="hidden-title">Скачать таблицу выплат</h2>
+
+      <div class="export-block">
+        <p class="export-hint">Выберите период для выгрузки</p>
+
+        <div class="field">
+          <label for="dateFrom">С</label>
+          <input type="date" id="dateFrom" name="dateFrom">
+        </div>
+
+        <div class="field">
+          <label for="dateTo">По</label>
+          <input type="date" id="dateTo" name="dateTo">
+        </div>
+
+        <button type="button" class="btn btn-secondary" id="downloadBtn">
+          Скачать таблицу выплат
+        </button>
+      </div>
+
+      <button type="button" class="btn btn-ghost" id="closeExportBtn">← Назад</button>
+    </section>
+
+  </div>
+
+  <div class="modal-overlay" id="addOrgModal" hidden>
+    <div class="modal" role="dialog" aria-labelledby="modalTitle" aria-modal="true">
+      <h2 class="modal-title" id="modalTitle">Добавить организацию</h2>
+      <p class="modal-hint">Введите название новой организации</p>
+
+      <div class="field">
+        <label for="newOrganization">Название</label>
+        <input type="text" id="newOrganization" name="newOrganization" placeholder="Например, ООО Ромашка">
+      </div>
+
+      <div class="modal-message" id="modalMessage" hidden></div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" id="saveOrganizationBtn">Сохранить</button>
+        <button type="button" class="btn btn-ghost" id="closeAddOrgBtn">Отмена</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="deleteOrgModal" hidden>
+    <div class="modal" role="dialog" aria-labelledby="deleteOrgTitle" aria-modal="true">
+      <h2 class="modal-title" id="deleteOrgTitle">Удалить организацию</h2>
+      <p class="modal-hint">Выберите организацию для удаления</p>
+
+      <div class="field">
+        <label for="deleteOrgSelect">Организация</label>
+        <select id="deleteOrgSelect" name="deleteOrgSelect">
+          <option value="" disabled selected>Выберите организацию</option>
+        </select>
+      </div>
+
+      <div class="modal-message" id="deleteOrgMessage" hidden></div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-danger" id="confirmDeleteOrgBtn">Удалить</button>
+        <button type="button" class="btn btn-ghost" id="closeDeleteOrgBtn">Отмена</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="deletePaymentModal" hidden>
+    <div class="modal" role="dialog" aria-labelledby="deletePaymentTitle" aria-modal="true">
+      <h2 class="modal-title" id="deletePaymentTitle">Удалить запись</h2>
+      <p class="modal-hint">Выберите организацию и дату записи</p>
+
+      <div class="field">
+        <label for="deletePaymentOrg">Организация</label>
+        <select id="deletePaymentOrg" name="deletePaymentOrg">
+          <option value="" disabled selected>Выберите организацию</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="deletePaymentDate">Дата</label>
+        <input type="date" id="deletePaymentDate" name="deletePaymentDate">
+      </div>
+
+      <div class="modal-message" id="deletePaymentMessage" hidden></div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-danger" id="confirmDeletePaymentBtn">Удалить</button>
+        <button type="button" class="btn btn-ghost" id="closeDeletePaymentBtn">Отмена</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/telegram.js"></script>
+  <script src="js/modal.js"></script>
+  <script src="js/delete.js"></script>
+  <script src="js/hidden.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

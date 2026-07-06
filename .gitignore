@@ -1,0 +1,19 @@
+# Секреты и окружение
+.env
+*.env.local
+
+# Python
+backend/venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# База данных (локальные данные)
+backend/data/*.db
+
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
