@@ -1,5 +1,10 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -e
+
+# На Ubuntu sh часто ссылается на dash — перезапускаем через bash
+if [ -z "${BASH_VERSION:-}" ]; then
+    exec bash "$0" "$@"
+fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
@@ -9,8 +14,8 @@ echo "=== Деньги Артема — запуск сервера ==="
 # Установка системных зависимостей (Ubuntu)
 if command -v apt-get &> /dev/null; then
     echo "Проверка системных пакетов..."
-    sudo apt-get update -qq
-    sudo apt-get install -y -qq python3 python3-venv python3-pip > /dev/null 2>&1 || true
+    apt-get update -qq
+    apt-get install -y -qq python3 python3-venv python3-pip > /dev/null 2>&1 || true
 fi
 
 # Виртуальное окружение
